@@ -1,0 +1,10 @@
+Goal of this project is to demonstrate OAuth certificate based authentication.
+Create 2 dotnet WebApi solutions OAuthApi & OAuthClient:
+- use controllers for both
+- Enable OpenApi for both
+- Use dotnet8 for both
+Create a selfsigned certificate valid as long as possible with a password
+Create a Controller WeatherForeCast 
+-  Add a Get method requiring no authentication
+-  Add a Get method requiring no authentication
+Create a Controller WeatherForeCast with a GetSequired method requiring OAuth authentication
