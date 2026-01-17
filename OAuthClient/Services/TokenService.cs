@@ -37,6 +37,8 @@ public class TokenService : ITokenService
     /// <returns>X509Certificate2 instance</returns>
     private X509Certificate2 LoadCertificate()
     {
+		g.WriteLine( GetType().Name);
+
         var certificatePath = _configuration["Authentication:CertificatePath"] ?? "../certs/oauth-demo.pfx";
         var certificatePassword = _configuration["Authentication:CertificatePassword"] ?? "OAuthDemo2026!";
 
@@ -65,6 +67,8 @@ public class TokenService : ITokenService
     /// <returns>JWT token string</returns>
     public string GenerateToken()
     {
+		g.WriteLine( GetType().Name);
+
         _logger.LogInformation("Generating JWT token");
 
         var issuer = _configuration["Authentication:Issuer"] ?? "OAuthDemo";

@@ -37,6 +37,8 @@ public class Startup
     /// <param name="services">The service collection</param>
     public void ConfigureServices(IServiceCollection services)
     {
+		g.WriteLine( GetType().Name);
+
         // Add services to the container.
         services.AddControllers();
 

@@ -31,6 +31,8 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IEnumerable<WeatherForecast> Get1()
     {
+		g.WriteLine( GetType().Name);
+
         logger.LogInformation("Get1 method called");
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
@@ -49,6 +51,8 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IEnumerable<WeatherForecast> Get2()
     {
+		g.WriteLine( GetType().Name);
+
         logger.LogInformation("Get2 method called");
         return Enumerable.Range(1, 7).Select(index => new WeatherForecast
         {
@@ -69,6 +73,8 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IEnumerable<WeatherForecast> GetSecured()
     {
+		g.WriteLine( GetType().Name);
+
         logger.LogInformation("GetSecured method called by authenticated user");
         return Enumerable.Range(1, 10).Select(index => new WeatherForecast
         {

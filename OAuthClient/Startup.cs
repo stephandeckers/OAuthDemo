@@ -35,6 +35,8 @@ public class Startup
     /// <param name="services">The service collection</param>
     public void ConfigureServices(IServiceCollection services)
     {
+		g.WriteLine( GetType().Name);
+
         // Add services to the container.
         services.AddControllers();
 
@@ -59,12 +61,10 @@ public class Startup
     /// <param name="env">The web host environment</param>
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        // Configure the HTTP request pipeline.
-        if (env.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+		g.WriteLine( GetType().Name);
+
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.UseHttpsRedirection();
 
