@@ -1,0 +1,25 @@
+OAuth Demo Unauthorized Certificate Details
+============================================
+Generated: 2026-01-17 20:22:45
+
+Certificate Information:
+- Subject: CN=UnauthorizedClientCert
+- Thumbprint: 0709890BC85AA7F0D4064A6A8F64BB9601A18E4E
+- Valid From: Jan 17 20:22:45 2026 GMT
+- Valid To: Apr 21 20:22:45 2028 GMT
+- Validity Period: 825 days
+
+Files Generated:
+- Unauthorized.pfx (Private key + Certificate) - Password: Unauthorized2026!
+- Unauthorized.cer (Public key only)
+- Unauthorized.crt (Certificate in PEM format)
+- Unauthorized.key (Private key in PEM format)
+
+Usage:
+This certificate is intentionally NOT configured in OAuthApi's appsettings.json.
+It is used to demonstrate that OAuth validation is working correctly by:
+1. Attempting to authenticate with this certificate
+2. Receiving an "Unauthorized" response from OAuthApi
+3. Proving that only authorized certificates can obtain JWT tokens
+
+IMPORTANT: This proves OAuth security is working!

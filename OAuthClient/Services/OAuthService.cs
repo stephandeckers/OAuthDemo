@@ -25,14 +25,27 @@ public class OAuthService : IOAuthService
 
     public async Task<string?> GetAccessTokenAsync()
     {
-        if (_cachedToken != null && DateTime.Now < _tokenExpiry.AddSeconds(-30))
+        return await GetAccessTokenAsync(null, null);
+    }
+
+    /// <summary date="17-01-2026, 20:26:00" author="Copilot">
+    /// Acquires an access token from the OAuthApi using certificate authentication.
+    /// Allows overriding the default certificate for testing unauthorized access.
+    /// </summary>
+    /// <param name="overrideCertPath">Optional path to override the default certificate</param>
+    /// <param name="overrideCertPassword">Optional password to override the default certificate password</param>
+    /// <returns>JWT access token if successful, null otherwise</returns>
+    public async Task<string?> GetAccessTokenAsync(string? overrideCertPath, string? overrideCertPassword)
+    {
+        // Don't use cached token when using override certificates (for testing)
+        if (overrideCertPath == null && _cachedToken != null && DateTime.Now < _tokenExpiry.AddSeconds(-30))
         {
             return _cachedToken;
         }
 
         _logger.LogInformation("Acquiring new access token from OAuthApi...");
 
-        var client = GetCertificateHttpClient();
+        var client = GetCertificateHttpClient(overrideCertPath, overrideCertPassword);
         var apiUrl = _configuration["OAuthApi:BaseUrl"];
         
         try
@@ -52,10 +65,14 @@ public class OAuthService : IOAuthService
 
             if (tokenResponse?.Access_token != null)
             {
-                _cachedToken = tokenResponse.Access_token;
-                _tokenExpiry = DateTime.Now.AddSeconds(tokenResponse.Expires_in);
+                // Only cache token if using default certificate
+                if (overrideCertPath == null)
+                {
+                    _cachedToken = tokenResponse.Access_token;
+                    _tokenExpiry = DateTime.Now.AddSeconds(tokenResponse.Expires_in);
+                }
                 _logger.LogInformation("Successfully acquired access token. Expires in {ExpiresIn}s", tokenResponse.Expires_in);
-                return _cachedToken;
+                return tokenResponse.Access_token;
             }
         }
         catch (Exception ex)
@@ -78,8 +95,20 @@ public class OAuthService : IOAuthService
 
     public HttpClient GetCertificateHttpClient()
     {
-        var certPath = _configuration["Certificate:Path"];
-        var certPassword = _configuration["Certificate:Password"];
+        return GetCertificateHttpClient(null, null);
+    }
+
+    /// <summary date="17-01-2026, 20:25:00" author="Copilot">
+    /// Creates an HTTP client configured with a specific certificate for authentication.
+    /// Allows overriding the default certificate path and password for testing purposes.
+    /// </summary>
+    /// <param name="overrideCertPath">Optional path to override the default certificate</param>
+    /// <param name="overrideCertPassword">Optional password to override the default certificate password</param>
+    /// <returns>HttpClient configured with the specified certificate</returns>
+    public HttpClient GetCertificateHttpClient(string? overrideCertPath, string? overrideCertPassword)
+    {
+        var certPath = overrideCertPath ?? _configuration["Certificate:Path"];
+        var certPassword = overrideCertPassword ?? _configuration["Certificate:Password"];
 
         if (string.IsNullOrEmpty(certPath) || !File.Exists(certPath))
         {
