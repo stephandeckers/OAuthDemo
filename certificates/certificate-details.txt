@@ -1,0 +1,20 @@
+﻿OAuth Demo Certificate Details
+==============================
+Generated: 2026-01-17 19:33:49
+
+Certificate Information:
+- Subject: CN=OAuthDemoClientCert
+- Thumbprint: 425FD8EDDEB834DAB9D1738CAA9E197B834AC785
+- Valid From: 01/17/2026 19:23:49
+- Valid To: 04/21/2028 20:33:49
+- Validity Period: 825 days
+
+Files Generated:
+- OAuthDemo.pfx (Private key + Certificate) - Password: OAuthDemo2026!
+- OAuthDemo.cer (Public key only)
+
+Usage:
+- OAuthApi: Uses the public key (CER) to validate client certificates
+- OAuthClient: Uses the private key (PFX) to authenticate
+
+IMPORTANT: Keep the PFX file and password secure!
