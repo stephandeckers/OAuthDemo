@@ -20,11 +20,43 @@ public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<TokenService> _logger;
+    private readonly Lazy<X509Certificate2> _certificate;
 
     public TokenService(IConfiguration configuration, ILogger<TokenService> logger)
     {
         _configuration = configuration;
         _logger = logger;
+        
+        // Load certificate lazily and cache it
+        _certificate = new Lazy<X509Certificate2>(LoadCertificate);
+    }
+
+    /// <summary date="17-01-2026, 14:15:00" author="Copilot">
+    /// Loads the certificate from the configured path
+    /// </summary>
+    /// <returns>X509Certificate2 instance</returns>
+    private X509Certificate2 LoadCertificate()
+    {
+        var certificatePath = _configuration["Authentication:CertificatePath"] ?? "../certs/oauth-demo.pfx";
+        var certificatePassword = _configuration["Authentication:CertificatePassword"] ?? "OAuthDemo2026!";
+
+        if (!File.Exists(certificatePath))
+        {
+            _logger.LogError("Certificate not found at path: {Path}", certificatePath);
+            throw new FileNotFoundException("Certificate file not found", certificatePath);
+        }
+
+        try
+        {
+            var cert = new X509Certificate2(certificatePath, certificatePassword);
+            _logger.LogInformation("Certificate loaded successfully from {Path}", certificatePath);
+            return cert;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
+            throw new InvalidOperationException($"Failed to load certificate from {certificatePath}. Ensure the password is correct.", ex);
+        }
     }
 
     /// <summary date="17-01-2026, 14:14:00" author="Copilot">
@@ -35,28 +67,10 @@ public class TokenService : ITokenService
     {
         _logger.LogInformation("Generating JWT token");
 
-        var certificatePath = _configuration["Authentication:CertificatePath"] ?? "../certs/oauth-demo.pfx";
-        var certificatePassword = _configuration["Authentication:CertificatePassword"] ?? "OAuthDemo2026!";
         var issuer = _configuration["Authentication:Issuer"] ?? "OAuthDemo";
         var audience = _configuration["Authentication:Audience"] ?? "OAuthApiUsers";
 
-        if (!File.Exists(certificatePath))
-        {
-            _logger.LogError("Certificate not found at path: {Path}", certificatePath);
-            throw new FileNotFoundException("Certificate file not found", certificatePath);
-        }
-
-        X509Certificate2 certificate;
-        try
-        {
-            certificate = new X509Certificate2(certificatePath, certificatePassword);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
-            throw new InvalidOperationException($"Failed to load certificate from {certificatePath}. Ensure the password is correct.", ex);
-        }
-
+        var certificate = _certificate.Value;
         var securityKey = new X509SecurityKey(certificate);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
 

@@ -51,27 +51,29 @@ builder.Services.AddSwaggerGen(c =>
 var certificatePath = builder.Configuration["Authentication:CertificatePath"] ?? "../certs/oauth-demo.pfx";
 var certificatePassword = builder.Configuration["Authentication:CertificatePassword"] ?? "OAuthDemo2026!";
 
-X509Certificate2? certificate = null;
-if (File.Exists(certificatePath))
-{
-    try
-    {
-        certificate = new X509Certificate2(certificatePath, certificatePassword);
-        builder.Logging.AddConsole().SetMinimumLevel(LogLevel.Information);
-    }
-    catch (Exception ex)
-    {
-        var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
-        logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
-        throw new InvalidOperationException($"Failed to load certificate from {certificatePath}", ex);
-    }
-}
-else
+if (!File.Exists(certificatePath))
 {
     var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
     logger.LogError("Certificate file not found at {Path}", certificatePath);
     throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
 }
+
+X509Certificate2 certificate;
+try
+{
+    certificate = new X509Certificate2(certificatePath, certificatePassword);
+    var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
+    logger.LogInformation("Certificate loaded successfully from {Path}", certificatePath);
+}
+catch (Exception ex)
+{
+    var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
+    logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
+    throw new InvalidOperationException($"Failed to load certificate from {certificatePath}", ex);
+}
+
+// Register certificate as singleton for reuse
+builder.Services.AddSingleton(certificate);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
