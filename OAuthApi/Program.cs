@@ -6,16 +6,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel to request client certificates
+// Configure Kestrel (no special client certificate handling needed)
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ConfigureHttpsDefaults(httpsOptions =>
-    {
-        // Try RequireCertificate mode to force certificate negotiation
-        httpsOptions.ClientCertificateMode = Microsoft.AspNetCore.Server.Kestrel.Https.ClientCertificateMode.RequireCertificate;
-        // Disable HTTP/2 to avoid TLS 1.3 client certificate issues
-        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-    });
+    // Use default HTTPS configuration
+    // Client certificates will be sent in the request body instead of via TLS
 });
 
 // Add services to the container.
