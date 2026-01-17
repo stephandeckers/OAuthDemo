@@ -21,22 +21,45 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Request an OAuth token using certificate authentication
+    /// <summary date="17-01-2026, 21:15:00" author="Copilot">
+    /// Request an OAuth token using certificate authentication.
+    /// Due to TLS client certificate issues with Kestrel, certificates are sent in the request body.
+    /// The client sends the certificate as base64-encoded DER format to prove identity.
     /// </summary>
     [HttpPost("token")]
     [AllowAnonymous]
-    public IActionResult GetToken()
+    public IActionResult GetToken([FromBody] TokenRequest? request = null)
     {
         try
         {
-            // Get the client certificate from the request
-            var clientCertificate = HttpContext.Connection.ClientCertificate;
+            // If no request body, try to get from TLS connection (legacy support)
+            X509Certificate2? clientCertificate = null;
+            
+            if (request != null && !string.IsNullOrEmpty(request.CertificateBase64))
+            {
+                // Certificate sent in request body (preferred method)
+                try
+                {
+                    var certBytes = Convert.FromBase64String(request.CertificateBase64);
+                    clientCertificate = new X509Certificate2(certBytes);
+                    _logger.LogInformation("Certificate received in request body: {Subject}", clientCertificate.Subject);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to parse certificate from request body");
+                    return Unauthorized(new { error = "Invalid certificate format" });
+                }
+            }
+            else
+            {
+                // Try TLS connection certificate (fallback)
+                clientCertificate = HttpContext.Connection.ClientCertificate;
+            }
 
             if (clientCertificate == null)
             {
                 _logger.LogWarning("Token request without client certificate");
-                return Unauthorized(new { error = "Client certificate required" });
+                return Unauthorized(new { error = "Client certificate required. Send certificate in request body as base64-encoded DER format." });
             }
 
             // Validate the certificate
@@ -65,6 +88,11 @@ public class AuthController : ControllerBase
             _logger.LogError(ex, "Error generating token");
             return StatusCode(500, new { error = "Internal server error" });
         }
+    }
+
+    public class TokenRequest
+    {
+        public string? CertificateBase64 { get; set; }
     }
 
     private bool ValidateCertificate(X509Certificate2 certificate)

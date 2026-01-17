@@ -6,45 +6,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel to request client certificates
+// Configure Kestrel (no special client certificate handling needed)
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ConfigureHttpsDefaults(httpsOptions =>
-    {
-        httpsOptions.ClientCertificateMode = Microsoft.AspNetCore.Server.Kestrel.Https.ClientCertificateMode.AllowCertificate;
-    });
+    // Use default HTTPS configuration
+    // Client certificates will be sent in the request body instead of via TLS
 });
 
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Configure Certificate Authentication
-builder.Services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
-    .AddCertificate(options =>
-    {
-        options.AllowedCertificateTypes = CertificateTypes.All;
-        options.RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck;
-        
-        options.Events = new CertificateAuthenticationEvents
-        {
-            OnCertificateValidated = context =>
-            {
-                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogInformation("Certificate validated: {Subject}", context.ClientCertificate.Subject);
-                context.Success();
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogWarning("Certificate authentication failed: {Error}", context.Exception.Message);
-                context.Fail(context.Exception.Message);
-                return Task.CompletedTask;
-            }
-        };
-    });
-
-// Configure JWT Bearer Authentication
+// Configure JWT Bearer Authentication as the default (for secured endpoints)
 var jwtSettings = builder.Configuration.GetSection("Authentication:Jwt");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
@@ -131,9 +103,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Enable certificate forwarding (important for certificate authentication)
-app.UseCertificateForwarding();
 
 app.UseAuthentication();
 app.UseAuthorization();

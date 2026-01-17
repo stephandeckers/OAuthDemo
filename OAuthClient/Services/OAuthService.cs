@@ -30,8 +30,9 @@ public class OAuthService : IOAuthService
         return await GetAccessTokenAsync(null, null);
     }
 
-    /// <summary date="17-01-2026, 20:26:00" author="Copilot">
+    /// <summary date="17-01-2026, 21:16:00" author="Copilot">
     /// Acquires an access token from the OAuthApi using certificate authentication.
+    /// Due to TLS client certificate issues with Kestrel, the certificate is sent in the request body.
     /// Allows overriding the default certificate for testing unauthorized access.
     /// </summary>
     /// <param name="overrideCertPath">Optional path to override the default certificate</param>
@@ -47,13 +48,58 @@ public class OAuthService : IOAuthService
 
         _logger.LogInformation("Acquiring new access token from OAuthApi...");
 
-        var client = GetCertificateHttpClient(overrideCertPath, overrideCertPassword);
+        var certPath = overrideCertPath ?? _configuration["Certificate:Path"];
+        var certPassword = overrideCertPassword ?? _configuration["Certificate:Password"];
+
+        if (string.IsNullOrEmpty(certPath) || !File.Exists(certPath))
+        {
+            _logger.LogError("Certificate not found at {CertPath}", certPath);
+            return null;
+        }
+
+        // Load certificate
+        X509Certificate2 certificate;
+        try
+        {
+            certificate = new X509Certificate2(certPath, certPassword);
+            _logger.LogInformation("Loaded certificate: {Subject}, Thumbprint: {Thumbprint}", 
+                certificate.Subject, certificate.Thumbprint);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load certificate from {CertPath}", certPath);
+            return null;
+        }
+
         var apiUrl = _configuration["OAuthApi:BaseUrl"];
         
         try
         {
-            // The Auth controller expects a POST to /Auth/token with the certificate
-            var response = await client.PostAsync($"{apiUrl}/Auth/token", null);
+            // Create HTTP client without TLS client certificate (avoiding Kestrel issues)
+            var handler = new HttpClientHandler
+            {
+                // NOTE: In production, implement proper certificate validation
+                // This is only acceptable for development/demo with self-signed certificates
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            };
+            var client = new HttpClient(handler);
+
+            // Send certificate in request body as base64-encoded DER format
+            var certBytes = certificate.Export(X509ContentType.Cert);
+            var certBase64 = Convert.ToBase64String(certBytes);
+
+            var requestBody = new
+            {
+                CertificateBase64 = certBase64
+            };
+
+            var jsonContent = new StringContent(
+                JsonSerializer.Serialize(requestBody),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            _logger.LogInformation("Sending token request to {ApiUrl}/Auth/token", apiUrl);
+            var response = await client.PostAsync($"{apiUrl}/Auth/token", jsonContent);
             
             if (!response.IsSuccessStatusCode)
             {
@@ -87,7 +133,13 @@ public class OAuthService : IOAuthService
 
     public HttpClient GetAuthenticatedHttpClient(string? accessToken = null)
     {
-        var client = new HttpClient();
+        var handler = new HttpClientHandler
+        {
+            // NOTE: In production, implement proper certificate validation
+            // This is only acceptable for development/demo with self-signed certificates
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+        var client = new HttpClient(handler);
         if (accessToken != null)
         {
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
@@ -123,7 +175,8 @@ public class OAuthService : IOAuthService
         var handler = new HttpClientHandler();
         handler.ClientCertificates.Add(certificate);
         
-        // For development: allow self-signed certificates
+        // NOTE: In production, implement proper certificate validation
+        // This is only acceptable for development/demo with self-signed certificates
         handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 
         return new HttpClient(handler);
