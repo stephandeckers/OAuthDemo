@@ -6,8 +6,10 @@ namespace OAuthClient.Services;
 public interface IOAuthService
 {
     Task<string?> GetAccessTokenAsync();
+    Task<string?> GetAccessTokenAsync(string? overrideCertPath, string? overrideCertPassword);
     HttpClient GetAuthenticatedHttpClient(string? accessToken = null);
     HttpClient GetCertificateHttpClient();
+    HttpClient GetCertificateHttpClient(string? overrideCertPath, string? overrideCertPassword);
 }
 
 public class OAuthService : IOAuthService
