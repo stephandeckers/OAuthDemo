@@ -1,0 +1,14 @@
+# @name .gitignore
+# @purpose Ultimate gitignore
+# @Author S.Deckers
+# @Data 02-10-2024
+# --------------------------------
+
+bin/
+obj/
+.vs/
+
+# --- Android
+
+.idea
+.gradle

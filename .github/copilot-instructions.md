@@ -3,6 +3,8 @@
 ## Code Style & Conventions
 - Use the existing debug logging pattern with `g.WriteLine()` and `d.WriteLine()`
 - Follow the namespace organization: Controllers, Data, Services, and main API namespace
+- Use the existing Global.CallCount pattern for tracking method calls
+- Include thread ID in debug output: `({Environment.CurrentManagedThreadId}.{Global.CallCount++})`
 - Use `#region -- Using directives --` for organizing imports
 - Follow the existing file header format with @Name, @Purpose, @Date, @Author, @Description
 - Private methods should follow camel case naming convention
@@ -37,9 +39,6 @@ Always register services in Program.cs:
 ```csharp
 builder.Services.AddScoped<IBasicService, BasicService>();
 ```
-## Toplevel statements 
-Do not use TopLevel statements
-For WebApi, use a Startup.cs
 
 ## Depenency Patterns
 ```csharp

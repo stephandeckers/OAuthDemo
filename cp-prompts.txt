@@ -1,3 +1,9 @@
+				cp	ag
+20260117 - 001.Create projects
+
+
+20260117 - 001.Create projects
+-------------------------------
 Goal of this project is to demonstrate OAuth certificate based authentication.
 Create 2 dotnet WebApi solutions OAuthApi & OAuthClient:
 - use controllers for both
