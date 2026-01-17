@@ -54,7 +54,23 @@ var certificatePassword = builder.Configuration["Authentication:CertificatePassw
 X509Certificate2? certificate = null;
 if (File.Exists(certificatePath))
 {
-    certificate = new X509Certificate2(certificatePath, certificatePassword);
+    try
+    {
+        certificate = new X509Certificate2(certificatePath, certificatePassword);
+        builder.Logging.AddConsole().SetMinimumLevel(LogLevel.Information);
+    }
+    catch (Exception ex)
+    {
+        var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
+        logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
+        throw new InvalidOperationException($"Failed to load certificate from {certificatePath}", ex);
+    }
+}
+else
+{
+    var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
+    logger.LogError("Certificate file not found at {Path}", certificatePath);
+    throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
 }
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -68,9 +84,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Authentication:Issuer"] ?? "OAuthDemo",
             ValidAudience = builder.Configuration["Authentication:Audience"] ?? "OAuthApiUsers",
-            IssuerSigningKey = certificate != null 
-                ? new X509SecurityKey(certificate)
-                : null
+            IssuerSigningKey = new X509SecurityKey(certificate)
         };
     });
 

@@ -46,7 +46,17 @@ public class TokenService : ITokenService
             throw new FileNotFoundException("Certificate file not found", certificatePath);
         }
 
-        var certificate = new X509Certificate2(certificatePath, certificatePassword);
+        X509Certificate2 certificate;
+        try
+        {
+            certificate = new X509Certificate2(certificatePath, certificatePassword);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
+            throw new InvalidOperationException($"Failed to load certificate from {certificatePath}. Ensure the password is correct.", ex);
+        }
+
         var securityKey = new X509SecurityKey(certificate);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
 

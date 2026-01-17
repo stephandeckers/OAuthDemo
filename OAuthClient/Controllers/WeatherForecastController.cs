@@ -42,11 +42,13 @@ public class OAuthDemoController(
             var response = await client.GetAsync($"{apiBaseUrl}/WeatherForecast/Get1");
             var content = await response.Content.ReadAsStringAsync();
             
+            var data = JsonSerializer.Deserialize<JsonElement>(content);
+            
             return Ok(new
             {
                 StatusCode = (int)response.StatusCode,
                 Message = "Called OAuthApi Get1 (no authentication)",
-                Data = JsonSerializer.Deserialize<object>(content)
+                Data = data
             });
         }
         catch (Exception ex)
@@ -74,11 +76,13 @@ public class OAuthDemoController(
             var response = await client.GetAsync($"{apiBaseUrl}/WeatherForecast/Get2");
             var content = await response.Content.ReadAsStringAsync();
             
+            var data = JsonSerializer.Deserialize<JsonElement>(content);
+            
             return Ok(new
             {
                 StatusCode = (int)response.StatusCode,
                 Message = "Called OAuthApi Get2 (no authentication)",
-                Data = JsonSerializer.Deserialize<object>(content)
+                Data = data
             });
         }
         catch (Exception ex)
@@ -115,12 +119,14 @@ public class OAuthDemoController(
             
             if (response.IsSuccessStatusCode)
             {
+                var data = JsonSerializer.Deserialize<JsonElement>(content);
+                
                 return Ok(new
                 {
                     StatusCode = (int)response.StatusCode,
                     Message = "Called OAuthApi GetSecured (with OAuth authentication)",
                     Token = token,
-                    Data = JsonSerializer.Deserialize<object>(content)
+                    Data = data
                 });
             }
             else
