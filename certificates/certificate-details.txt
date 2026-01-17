@@ -1,20 +1,25 @@
-﻿OAuth Demo Certificate Details
+OAuth Demo Certificate Details
 ==============================
-Generated: 2026-01-17 19:33:49
+Generated: 2026-01-17 20:30:00 (Regenerated with OpenSSL for Linux compatibility)
 
 Certificate Information:
 - Subject: CN=OAuthDemoClientCert
-- Thumbprint: 425FD8EDDEB834DAB9D1738CAA9E197B834AC785
-- Valid From: 01/17/2026 19:23:49
-- Valid To: 04/21/2028 20:33:49
+- Thumbprint: 8553403A3E5F6653ACA0F73CD3C647D5364061D3
+- Valid From: Jan 17 20:30:00 2026 GMT
+- Valid To: Apr 21 20:30:00 2028 GMT
 - Validity Period: 825 days
 
 Files Generated:
 - OAuthDemo.pfx (Private key + Certificate) - Password: OAuthDemo2026!
-- OAuthDemo.cer (Public key only)
+- OAuthDemo.cer (Public key only - DER format)
+- OAuthDemo.crt (Certificate in PEM format)
+- OAuthDemo.key (Private key in PEM format)
 
 Usage:
-- OAuthApi: Uses the public key (CER) to validate client certificates
+- OAuthApi: Uses the certificate thumbprint to validate client certificates
 - OAuthClient: Uses the private key (PFX) to authenticate
 
 IMPORTANT: Keep the PFX file and password secure!
+
+Note: This certificate was regenerated using OpenSSL for cross-platform compatibility.
+The original Windows-generated certificate is backed up as OAuthDemo.pfx.backup and OAuthDemo.cer.backup.
