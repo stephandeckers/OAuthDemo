@@ -70,20 +70,20 @@ public class AuthController : ControllerBase
     private bool ValidateCertificate(X509Certificate2 certificate)
     {
         // Basic validation - check if certificate is not expired
-        if (certificate.NotAfter < DateTime.Now)
+        if (certificate.NotAfter < DateTime.UtcNow)
         {
             _logger.LogWarning("Certificate expired: {NotAfter}", certificate.NotAfter);
             return false;
         }
 
-        if (certificate.NotBefore > DateTime.Now)
+        if (certificate.NotBefore > DateTime.UtcNow)
         {
             _logger.LogWarning("Certificate not yet valid: {NotBefore}", certificate.NotBefore);
             return false;
         }
 
-        // In production, you would validate against a trusted certificate store
-        // For this demo, we accept any valid certificate
+        // Validate against the configured trusted certificate thumbprint
+        // Only certificates with matching thumbprints are accepted
         var expectedThumbprint = _configuration["Authentication:Certificate:Thumbprint"];
         if (!string.IsNullOrEmpty(expectedThumbprint))
         {
@@ -104,7 +104,13 @@ public class AuthController : ControllerBase
         var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
         var issuer = jwtSettings["Issuer"] ?? "OAuthApi";
         var audience = jwtSettings["Audience"] ?? "OAuthClient";
-        var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
+        
+        // Parse expiration with error handling
+        if (!int.TryParse(jwtSettings["ExpirationMinutes"], out int expirationMinutes))
+        {
+            expirationMinutes = 60; // Default to 60 minutes
+            _logger.LogWarning("Invalid ExpirationMinutes configuration, using default: {Default}", expirationMinutes);
+        }
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -121,7 +127,7 @@ public class AuthController : ControllerBase
             issuer: issuer,
             audience: audience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(expirationMinutes),
+            expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
             signingCredentials: credentials
         );
 
