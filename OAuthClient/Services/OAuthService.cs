@@ -78,6 +78,8 @@ public class OAuthService : IOAuthService
             // Create HTTP client without TLS client certificate (avoiding Kestrel issues)
             var handler = new HttpClientHandler
             {
+                // NOTE: In production, implement proper certificate validation
+                // This is only acceptable for development/demo with self-signed certificates
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
             };
             var client = new HttpClient(handler);
@@ -133,6 +135,8 @@ public class OAuthService : IOAuthService
     {
         var handler = new HttpClientHandler
         {
+            // NOTE: In production, implement proper certificate validation
+            // This is only acceptable for development/demo with self-signed certificates
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
         };
         var client = new HttpClient(handler);
@@ -171,7 +175,8 @@ public class OAuthService : IOAuthService
         var handler = new HttpClientHandler();
         handler.ClientCertificates.Add(certificate);
         
-        // For development: allow self-signed certificates
+        // NOTE: In production, implement proper certificate validation
+        // This is only acceptable for development/demo with self-signed certificates
         handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 
         return new HttpClient(handler);

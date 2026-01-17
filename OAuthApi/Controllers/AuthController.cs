@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
     /// <summary date="17-01-2026, 21:15:00" author="Copilot">
     /// Request an OAuth token using certificate authentication.
     /// Due to TLS client certificate issues with Kestrel, certificates are sent in the request body.
-    /// The client sends the certificate thumbprint and a signed challenge to prove possession of the private key.
+    /// The client sends the certificate as base64-encoded DER format to prove identity.
     /// </summary>
     [HttpPost("token")]
     [AllowAnonymous]
