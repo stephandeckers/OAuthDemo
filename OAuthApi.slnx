@@ -1,3 +1,27 @@
 <Solution>
+  <Folder Name="/Certs/">
+    <File Path="certificates/certificate-details.txt" />
+    <File Path="certificates/generate-certificate.ps1" />
+    <File Path="certificates/generate-unauthorized-certificate.ps1" />
+    <File Path="certificates/generate-unauthorized-certificate.sh" />
+    <File Path="certificates/OAuthDemo.cer" />
+    <File Path="certificates/OAuthDemo.cer.backup" />
+    <File Path="certificates/OAuthDemo.crt" />
+    <File Path="certificates/OAuthDemo.key" />
+    <File Path="certificates/OAuthDemo.pfx" />
+    <File Path="certificates/OAuthDemo.pfx.backup" />
+    <File Path="certificates/unauthorized-certificate-details.txt" />
+    <File Path="certificates/Unauthorized.cer" />
+    <File Path="certificates/Unauthorized.crt" />
+    <File Path="certificates/Unauthorized.key" />
+    <File Path="certificates/Unauthorized.pfx" />
+  </Folder>
+  <Folder Name="/Docs/">
+    <File Path="IMPLEMENTATION_SUMMARY.md" />
+    <File Path="OAUTH_PROOF.md" />
+    <File Path="TEST_VERIFICATION.md" />
+  </Folder>
+  <Project Path="eFns.Core/eFns.Core.csproj" />
   <Project Path="OAuthApi/OAuthApi.csproj" />
+  <Project Path="OAuthClient/OAuthClient.csproj" />
 </Solution>
