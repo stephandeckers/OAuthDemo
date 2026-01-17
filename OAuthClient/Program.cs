@@ -1,44 +1,36 @@
 /**
  * @Name Program.cs
  * @Purpose Application entry point
- * @Date 17 January 2026, 14:14:00
+ * @Date 17 January 2026, 19:26:00
  * @Author Copilot
- * @Description Configures and runs the OAuthClient web application
+ * @Description Main entry point for the OAuthClient web application
  */
 
-using OAuthClient.Services;
+namespace OAuthClient;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllers();
-
-// Add HttpClient for calling external APIs
-builder.Services.AddHttpClient();
-
-// Register TokenService
-builder.Services.AddScoped<ITokenService, TokenService>();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+/// <summary date="17-01-2026, 19:26:00" author="Copilot">
+/// Main program class
+/// </summary>
+public class Program
 {
-    c.SwaggerDoc("v1", new() { Title = "OAuthClient", Version = "v1" });
-});
+    /// <summary date="17-01-2026, 19:26:00" author="Copilot">
+    /// Main entry point of the application
+    /// </summary>
+    /// <param name="args">Command line arguments</param>
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    /// <summary date="17-01-2026, 19:26:00" author="Copilot">
+    /// Creates the host builder with configured startup
+    /// </summary>
+    /// <param name="args">Command line arguments</param>
+    /// <returns>The configured host builder</returns>
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
