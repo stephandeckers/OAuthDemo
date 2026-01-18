@@ -40,46 +40,44 @@ global using g = Whoua.Core.Api.Global;
 ```
 
 ## Dependency Patterns
+- Services used in multiple methods are to be injected using primary constructors
+- Services used in a single methods are to be injected using method injection
 ```csharp
 // Controller pattern with primary constructor if the service is used in multiple methods(preferred)
-// Use method injection if there's only a single method using the service like 'Get3'
-[ApiController()]
+// Use method injection if there's only a single method using the service
+[ApiController]
 [Route("[controller]")]
-public SomeController(ILogger<SomeController> logger) : ControllerBase
+public class WeatherForecastController(ILogger<WeatherForecastController> logger) : ControllerBase
 {
-    // Use logger parameter directly, no need for private fields
+	[ HttpGet( "Get1")]
+	[ ProducesResponseType(StatusCodes.Status200OK)]
+	[ SwaggerOperation(Tags = new[] { "Get1" }, Summary = "Get1")]
+	public async Task<IActionResult> Get1( )
+	{
+	    logger.LogInfo( "Get1 running");
+	}
+	
+	[ HttpGet( "Get2")]
+	[ ProducesResponseType(StatusCodes.Status200OK)]
+	[ SwaggerOperation(Tags = new[] { "Get2" }, Summary = "Get2")]
+	public async Task<IActionResult> Get2( )
+	{
+	    logger.LogInfo( "Get1 running");
+	}
+	
+	// Method injection
+	[ HttpGet( "Get3")]
+	[ ProducesResponseType(StatusCodes.Status200OK)]
+	[ SwaggerOperation(Tags = new[] { "Get3" }, Summary = "Get3")]
+	public async Task<IActionResult> Get3( ISomeService someService)
+	{
+	    logger.LogInfo( "Get2 running");
+	    var result = someService.DoSomething
+	    return Ok($"it worked:[{ result}]");
+	}	
 }
 
-// Use reference to service
-[ HttpGet( "Get1")]
-[ ProducesResponseType(StatusCodes.Status200OK)]
-[ SwaggerOperation(Tags = new[] { "Get1" }, Summary = "Get1")]
-public async Task<IActionResult> Get1( )
-{
-    logger.LogInfo( "Get1 running");
-}
-
-// Use reference to service
-[ HttpGet( "Get2")]
-[ ProducesResponseType(StatusCodes.Status200OK)]
-[ SwaggerOperation(Tags = new[] { "Get2" }, Summary = "Get2")]
-public async Task<IActionResult> Get2( )
-{
-    logger.LogInfo( "Get2 running");
-}
-
-// Use reference to service
-[ HttpGet( "Get3")]
-[ ProducesResponseType(StatusCodes.Status200OK)]
-[ SwaggerOperation(Tags = new[] { "Get3" }, Summary = "Get3")]
-public async Task<IActionResult> Get3( ISomeService someService)
-{
-    logger.LogInfo( "Get2 running");
-    var result = someService.DoSomething
-    return Ok($"it worked:[{ result}]");
-}
 ```
-
 ## Primary Constructor Guidelines
 - When using primary constructors, do NOT create redundant private readonly fields
 - Use the constructor parameters directly throughout the class
