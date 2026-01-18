@@ -12,4 +12,12 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\eFns.Core\eFns.Core.csproj" />
+  </ItemGroup>
+
+	<PropertyGroup>
+		<NoWarn>1701;1702;8981</NoWarn>
+	</PropertyGroup>
+	
 </Project>
