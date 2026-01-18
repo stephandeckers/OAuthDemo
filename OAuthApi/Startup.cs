@@ -76,9 +76,10 @@ public class Startup
         var certificatePath = Configuration["Authentication:CertificatePath"] ?? "../certs/oauth-demo.pfx";
         var certificatePassword = Configuration["Authentication:CertificatePassword"] ?? "OAuthDemo2026!";
 
+        var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
+
         if (!File.Exists(certificatePath))
         {
-            var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
             logger.LogError("Certificate file not found at {Path}", certificatePath);
             throw new FileNotFoundException($"Certificate file not found at {certificatePath}");
         }
@@ -87,12 +88,10 @@ public class Startup
         try
         {
             certificate = new X509Certificate2(certificatePath, certificatePassword);
-            var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
             logger.LogInformation("Certificate loaded successfully from {Path}", certificatePath);
         }
         catch (Exception ex)
         {
-            var logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger("Startup");
             logger.LogError(ex, "Failed to load certificate from {Path}", certificatePath);
             throw new InvalidOperationException($"Failed to load certificate from {certificatePath}", ex);
         }
