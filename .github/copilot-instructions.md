@@ -37,14 +37,9 @@ global using g = Whoua.Core.Api.Global;
 - Include proper HTTP method attributes (HttpGet, HttpPost, etc.)
 - Use IEnumerable for collections in API responses
 - Controllers should be in format: `[Route("[controller]")]`
-
-## Service Registration Pattern
-Always register services in Program.cs:
-```csharp
-builder.Services.AddScoped<IBasicService, BasicService>();
 ```
 
-## Depenency Patterns
+## Dependency Patterns
 ```csharp
 // Controller pattern with primary constructor if the service is used in multiple methods(preferred)
 // Use method injection if there's only a single method using the service like 'Get3'
