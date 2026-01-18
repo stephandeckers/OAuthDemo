@@ -4,11 +4,15 @@
 # @Data 02-10-2024
 # --------------------------------
 
+# --- Folders
 bin/
 obj/
 .vs/
 
-# --- Android
+# --- Unwanted files
+*.csproj.user
+*.slnLaunch.user
 
+# --- Android
 .idea
 .gradle
