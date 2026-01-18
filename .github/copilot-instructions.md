@@ -1,5 +1,9 @@
 # Copilot Instructions for OAuthDemo
 
+## Program entry
+- Don't use Toplevel programs
+- Use Startup.cs for service registration
+
 ## Code Style & Conventions
 - Use the existing debug logging pattern with `g.WriteLine()` and `d.WriteLine()`
 - Follow the namespace organization: Controllers, Data, Services, and main API namespace
